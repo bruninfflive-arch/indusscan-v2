@@ -290,7 +290,22 @@ export async function createEmissions(emissionData: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(emissions).values(emissionData as any);
+  // Serializar JSON fields para strings e garantir tipos corretos
+  const normalizedData = {
+    analysisId: Number(emissionData.analysisId),
+    minEmission: Number(emissionData.minEmission),
+    avgEmission: Number(emissionData.avgEmission),
+    maxEmission: Number(emissionData.maxEmission),
+    annualProjection: Number(emissionData.annualProjection),
+    year1Projection: emissionData.year1Projection ? Number(emissionData.year1Projection) : null,
+    year3Projection: emissionData.year3Projection ? Number(emissionData.year3Projection) : null,
+    year5Projection: emissionData.year5Projection ? Number(emissionData.year5Projection) : null,
+    monthlyProjection: emissionData.monthlyProjection ? JSON.stringify(emissionData.monthlyProjection) : null,
+    formulaUsed: emissionData.formulaUsed,
+    calculationInputs: emissionData.calculationInputs ? JSON.stringify(emissionData.calculationInputs) : null,
+  };
+
+  const result = await db.insert(emissions).values(normalizedData as any);
   return (result as any).insertId as number;
 }
 
