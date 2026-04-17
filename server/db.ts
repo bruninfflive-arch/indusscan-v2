@@ -204,12 +204,29 @@ export async function createAnalysis(analysisData: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(analyses).values({
-    ...analysisData,
+  // Normalizar dados de entrada
+  const normalizedData = {
+    userId: Number(analysisData.userId),
+    machineId: analysisData.machineId ? Number(analysisData.machineId) : null,
+    imageUrl: analysisData.imageUrl || "",
+    imageFileName: analysisData.imageFileName || null,
+    identifiedMachineType: analysisData.identifiedMachineType || null,
+    identifiedBrand: analysisData.identifiedBrand || null,
+    identifiedModel: analysisData.identifiedModel || null,
+    identifiedYear: analysisData.identifiedYear ? Number(analysisData.identifiedYear) : null,
+    confidenceScore: analysisData.confidenceScore ? Number(analysisData.confidenceScore) : null,
+    anomalies: analysisData.anomalies ? JSON.stringify(analysisData.anomalies) : null,
     status: "processing",
-  } as any);
+  };
 
-  return (result as any).insertId as number;
+  const result = await db.insert(analyses).values(normalizedData as any);
+  const insertId = (result as any).insertId;
+  
+  if (!insertId || isNaN(insertId)) {
+    throw new Error(`Failed to create analysis: invalid insertId ${insertId}`);
+  }
+  
+  return Number(insertId);
 }
 
 export async function updateAnalysisStatus(

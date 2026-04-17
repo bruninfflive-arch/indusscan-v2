@@ -77,17 +77,23 @@ export function calculateEmissions(
     machineAge = 0,
   } = inputs;
 
-  // Validações
-  if (powerConsumption <= 0) {
-    throw new Error("Consumo de potência deve ser maior que zero");
+  // Validações e normalização
+  const validPowerConsumption = Number(powerConsumption);
+  if (!validPowerConsumption || isNaN(validPowerConsumption) || validPowerConsumption <= 0) {
+    throw new Error(`Consumo de potência inválido: ${powerConsumption}`);
   }
+
+  const validEfficiency = Math.max(Number(efficiency) || 100, 50);
+  const validOperatingHours = Number(operatingHoursPerDay) || 8;
+  const validOperatingDays = Number(operatingDaysPerYear) || 250;
+  const validMachineAge = Number(machineAge) || 0;
 
   // Obter fatores de emissão
   const factors = EMISSION_FACTORS[energySource] || EMISSION_FACTORS.other;
 
   // Ajustar consumo pela eficiência (máquinas menos eficientes consomem mais)
-  const efficiencyFactor = 100 / Math.max(efficiency, 50); // Mínimo 50% de eficiência
-  const adjustedPowerConsumption = powerConsumption * efficiencyFactor;
+  const efficiencyFactor = 100 / validEfficiency; // Mínimo 50% de eficiência
+  const adjustedPowerConsumption = validPowerConsumption * efficiencyFactor;
 
   // Calcular emissões por hora (kg CO₂/h)
   const minEmissionPerHour = adjustedPowerConsumption * factors.min;
@@ -95,7 +101,7 @@ export function calculateEmissions(
   const maxEmissionPerHour = adjustedPowerConsumption * factors.max;
 
   // Calcular emissões anuais (kg CO₂/ano)
-  const hoursPerYear = operatingHoursPerDay * operatingDaysPerYear;
+  const hoursPerYear = validOperatingHours * validOperatingDays;
   const minAnnual = minEmissionPerHour * hoursPerYear;
   const avgAnnual = avgEmissionPerHour * hoursPerYear;
   const maxAnnual = maxEmissionPerHour * hoursPerYear;
