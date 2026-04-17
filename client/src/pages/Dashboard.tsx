@@ -33,7 +33,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-slate-300">{user?.name}</span>
-            <Button variant="outline" onClick={() => navigate("/analysis")}>
+            <Button variant="outline" onClick={() => navigate("/analysis")} style={{color: '#ffffff', backgroundColor: '#036d05'}}>
               Nova Análise
             </Button>
           </div>
@@ -160,7 +160,7 @@ export default function Dashboard() {
           <Button
             onClick={() => navigate("/history")}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2" style={{color: '#fcfcfc', backgroundColor: '#09ce72'}}
           >
             <History className="w-4 h-4" />
             Ver Histórico
