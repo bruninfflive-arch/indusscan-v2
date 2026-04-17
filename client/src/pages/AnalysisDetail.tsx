@@ -10,7 +10,7 @@ export default function AnalysisDetail() {
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const params = useParams();
-  const analysisId = parseInt(params.id || "0");
+  const analysisId = parseInt(params?.id || "0");
 
   if (!isAuthenticated) {
     navigate("/");
