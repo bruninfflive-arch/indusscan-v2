@@ -219,14 +219,27 @@ export async function createAnalysis(analysisData: {
     status: "processing",
   };
 
-  const result = await db.insert(analyses).values(normalizedData as any);
-  const insertId = (result as any).insertId;
+  // Inserir e recuperar o ID usando select
+  await db.insert(analyses).values(normalizedData as any);
   
-  if (!insertId || isNaN(insertId)) {
-    throw new Error(`Failed to create analysis: invalid insertId ${insertId}`);
+  // Recuperar o registro recém-criado para obter o ID
+  const result = await db
+    .select()
+    .from(analyses)
+    .where(eq(analyses.userId, normalizedData.userId))
+    .orderBy(desc(analyses.createdAt))
+    .limit(1);
+  
+  if (!result || result.length === 0) {
+    throw new Error("Failed to retrieve created analysis");
   }
   
-  return Number(insertId);
+  const analysisId = result[0].id;
+  if (!analysisId) {
+    throw new Error("Failed to create analysis: no ID returned");
+  }
+  
+  return analysisId;
 }
 
 export async function updateAnalysisStatus(
