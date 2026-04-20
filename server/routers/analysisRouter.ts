@@ -7,6 +7,7 @@ import { generateRecommendations } from "../recommendationsService";
 import {
   createAnalysis,
   updateAnalysisStatus,
+  updateAnalysisIdentification,
   createOrUpdateMachine,
   createEmissions,
   createRecommendations,
@@ -51,10 +52,21 @@ export const analysisRouter = router({
           input.mimeType || "image/jpeg"
         );
 
-        // 3. Atualizar análise com dados identificados
+        // 3. Salvar dados identificados na análise
+        await updateAnalysisIdentification(analysisId, {
+          imageUrl,
+          identifiedMachineType: identification.machineType,
+          identifiedBrand: identification.brand,
+          identifiedModel: identification.model,
+          identifiedYear: identification.yearOfManufacture,
+          confidenceScore: identification.confidenceScore,
+          anomalies: identification.anomalies,
+        });
+
+        // 4. Atualizar status
         await updateAnalysisStatus(analysisId, "processing");
 
-        // 4. Deep Research para enriquecer dados
+        // 5. Deep Research para enriquecer dados
         const enrichedData = await enrichMachineData(
           identification.brand,
           identification.model,
@@ -62,7 +74,7 @@ export const analysisRouter = router({
           identification.yearOfManufacture
         );
 
-        // 5. Criar ou atualizar máquina no catálogo
+        // 6. Criar ou atualizar máquina no catálogo
         const machineId = await createOrUpdateMachine({
           machineType: identification.machineType,
           brand: identification.brand,
@@ -74,7 +86,7 @@ export const analysisRouter = router({
           dataSource: "deep_research",
         });
 
-        // 6. Calcular emissões
+        // 7. Calcular emissões
         const emissionsData = calculateEmissions({
           powerConsumption: enrichedData.powerConsumption || 7.5,
           energySource: (enrichedData.energySource || "electric") as any,
@@ -86,7 +98,7 @@ export const analysisRouter = router({
             : 0,
         });
 
-        // 7. Salvar emissões
+        // 8. Salvar emissões
         const emissionId = await createEmissions({
           analysisId,
           minEmission: emissionsData.minEmission,
@@ -101,7 +113,7 @@ export const analysisRouter = router({
           calculationInputs: emissionsData.calculationInputs as any,
         });
 
-        // 8. Gerar recomendações
+        // 9. Gerar recomendações
         const recommendations = await generateRecommendations(
           identification.machineType,
           identification.brand,

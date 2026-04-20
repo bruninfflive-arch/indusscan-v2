@@ -260,6 +260,41 @@ export async function updateAnalysisStatus(
     .where(eq(analyses.id, analysisId));
 }
 
+export async function updateAnalysisIdentification(
+  analysisId: number,
+  data: {
+    imageUrl?: string;
+    machineId?: number;
+    identifiedMachineType?: string;
+    identifiedBrand?: string;
+    identifiedModel?: string;
+    identifiedYear?: number;
+    confidenceScore?: number;
+    anomalies?: string[];
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, unknown> = {};
+
+  if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
+  if (data.machineId !== undefined) updateData.machineId = data.machineId;
+  if (data.identifiedMachineType !== undefined) updateData.identifiedMachineType = data.identifiedMachineType;
+  if (data.identifiedBrand !== undefined) updateData.identifiedBrand = data.identifiedBrand;
+  if (data.identifiedModel !== undefined) updateData.identifiedModel = data.identifiedModel;
+  if (data.identifiedYear !== undefined) updateData.identifiedYear = data.identifiedYear;
+  if (data.confidenceScore !== undefined) updateData.confidenceScore = data.confidenceScore;
+  if (data.anomalies !== undefined) updateData.anomalies = JSON.stringify(data.anomalies);
+
+  if (Object.keys(updateData).length === 0) return;
+
+  await db
+    .update(analyses)
+    .set(updateData)
+    .where(eq(analyses.id, analysisId));
+}
+
 export async function getAnalysisByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
