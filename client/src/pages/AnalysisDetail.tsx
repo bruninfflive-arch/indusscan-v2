@@ -100,7 +100,14 @@ export default function AnalysisDetail() {
               </div>
               <div>
                 <p className="text-slate-400 text-sm mb-1">Ano de Fabricação</p>
-                <p className="text-white font-semibold text-lg">{analysis.identifiedYear || "N/A"}</p>
+                {analysis.identifiedYear ? (
+                  <p className="text-white font-semibold text-lg">{analysis.identifiedYear}</p>
+                ) : (
+                  <div className="flex items-center gap-2 bg-amber-900/30 border border-amber-700/50 rounded px-3 py-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400" />
+                    <p className="text-amber-300 text-sm">Ano não identificado</p>
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-slate-400 text-sm mb-1">Data da Análise</p>
