@@ -198,7 +198,7 @@ export default function AnalysisDetail() {
                       <p className="text-slate-300 text-sm mt-1">{rec.description}</p>
                       {rec.estimatedCO2ReductionKg && (
                         <p className="text-emerald-400 text-sm mt-2">
-                          💚 Economia potencial: {rec.estimatedCO2ReductionKg.toFixed(0)} kg CO₂/ano
+                          💚 Economia potencial: {Number(rec.estimatedCO2ReductionKg || 0).toFixed(0)} kg CO₂/ano
                         </p>
                       )}
                     </div>
